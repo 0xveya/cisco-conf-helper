@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "./cisco-conf-helper.schema.json",
+  "title": "Cisco Conf Helper Config",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "backup": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "output_dir": { "type": "string" },
+        "command": { "type": "string" },
+        "fallback_hostname": { "type": "string" },
+        "min_expected_bytes": { "type": "integer", "minimum": 0 },
+        "retry_on_low_bytes": { "type": "boolean" }
+      }
+    },
+    "device": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "device_type": { "type": "string" },
+        "password": { "type": "string" },
+        "secret": { "type": "string" },
+        "serial": { "$ref": "#/$defs/serial" }
+      }
+    },
+    "serial": { "$ref": "#/$defs/serial" },
+    "git": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "auto_commit": { "type": "boolean" },
+        "commit_message": { "type": "string" },
+        "commit_body": { "type": "string" }
+      }
+    },
+    "jj": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "auto_commit": { "type": "boolean" },
+        "commit_message": { "type": "string" },
+        "commit_body": { "type": "string" }
+      }
+    },
+    "cli": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "loop": { "type": "boolean" },
+        "count": { "type": "integer", "minimum": 0 },
+        "stop_on_error": { "type": "boolean" }
+      }
+    }
+  },
+  "$defs": {
+    "serial": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "port": { "type": "string" },
+        "baudrate": { "type": "integer" },
+        "bytesize": { "type": "integer" },
+        "parity": { "type": "string", "minLength": 1, "maxLength": 1 },
+        "stopbits": { "type": "integer" }
+      }
+    }
+  }
+}

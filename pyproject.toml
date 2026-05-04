@@ -1,10 +1,16 @@
 [project]
 name = "cisco-conf-helper"
 version = "0.1.0"
-description = "Add your description here"
+description = "Back up Cisco configs over serial"
 readme = "README.md"
 requires-python = ">=3.14"
-dependencies = ["netmiko>=4.6.0"]
+dependencies = [
+    "dacite>=1.9.2",
+    "netmiko>=4.6.0",
+]
+
+[project.scripts]
+cisco-conf-helper = "cisco_conf_helper.cli:main"
 
 [dependency-groups]
 dev = [

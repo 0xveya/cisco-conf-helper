@@ -1,0 +1,58 @@
+#:schema ./cisco-conf-helper.schema.json
+
+[backup]
+output_dir = "backups"
+command = "show running-config"
+min_expected_bytes = 1000
+retry_on_low_bytes = true
+
+[git]
+enabled = true
+auto_commit = true
+commit_message = "Back up config for {hostname}"
+commit_body = """
+Devices changed:
+- {hostname}
+
+Files changed:
+- {path}
+
+Bytes written: {bytes_written}
+Command: {command}
+Device type: {device_type}
+Timestamp: {timestamp}
+"""
+
+[jj]
+enabled = false
+auto_commit = false
+commit_message = "Back up config for {hostname}"
+commit_body = """
+Devices changed:
+- {hostname}
+
+Files changed:
+- {path}
+
+Bytes written: {bytes_written}
+Command: {command}
+Device type: {device_type}
+Timestamp: {timestamp}
+"""
+
+[cli]
+loop = true
+count = 0
+stop_on_error = true
+
+[device]
+device_type = "cisco_ios_serial"
+password = "cisco"
+secret = "class"
+
+[serial]
+port = "/dev/ttyUSB0"
+baudrate = 9600
+bytesize = 8
+parity = "N"
+stopbits = 1
