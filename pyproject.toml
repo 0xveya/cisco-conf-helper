@@ -3,8 +3,27 @@ name = "cisco-conf-helper"
 version = "0.1.0"
 description = "Back up Cisco configs over serial"
 readme = "README.md"
+license = { file = "LICENSE" }
+authors = [{ name = "Veya", email = "0xveya@gmail.com" }]
 requires-python = ">=3.14"
+
+keywords = ["cisco", "networking", "backup", "netmiko", "automation"]
+
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: System Administrators",
+    "License :: OSI Approved :: The Unlicense (Unlicense)",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: System :: Networking",
+]
+
 dependencies = ["dacite>=1.9.2", "netmiko>=4.6.0"]
+
+[project.urls]
+Repository = "https://github.com/0xveya/cisco-conf-helper"
+Issues = "https://github.com/0xveya/cisco-conf-helper/issues"
 
 [project.scripts]
 cisco-conf-helper = "cisco_conf_helper.cli:main"
@@ -33,3 +52,6 @@ build-backend = "setuptools.build_meta"
 [tool.setuptools.packages.find]
 include = ["cisco_conf_helper*"]
 exclude = ["backups*", "test*"]
+
+[tool.setuptools]
+include-package-data = true
