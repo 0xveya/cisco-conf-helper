@@ -108,7 +108,11 @@ def save_text(path: Path, text: str) -> Result[Path]:
 
 def prompt_retry(byte_count: int, min_expected_bytes: int) -> bool:
     prompt = f"Only read {byte_count} bytes; expected at least {min_expected_bytes}. Retry? [y/N]: "
-    answer = input(prompt)
+    try:
+        answer = input(prompt)
+    except (EOFError, KeyboardInterrupt):
+        print()
+        return False
     return answer.strip().lower() in {"y", "yes"}
 
 
@@ -157,5 +161,7 @@ def backup_running_config(
                     bytes_written=byte_count,
                 ),
             )
+    except KeyboardInterrupt:
+        return Result(ok=False, error="Backup interrupted by user.")
     except Exception as exc:
         return Result(ok=False, error=f"Backup failed: {exc}")

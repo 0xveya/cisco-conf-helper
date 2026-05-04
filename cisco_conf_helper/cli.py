@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import sys
 from dataclasses import replace
 from pathlib import Path
 from typing import cast
@@ -197,7 +198,7 @@ def should_continue(device_number: int, cli: CliConfig) -> bool:
         answer = input(
             "Plug in the next device, then press Enter to continue or type 'q' to quit: "
         )
-    except EOFError, KeyboardInterrupt:
+    except (EOFError, KeyboardInterrupt):
         print()
         return False
 
@@ -222,11 +223,25 @@ def run_loop(config: AppConfig) -> None:
 
 
 def main() -> None:
-    args = cast(CliArgs, build_parser().parse_args(namespace=CliArgs()))
-    config = apply_overrides(load_config(args.config), args)
+    try:
+        args = cast(CliArgs, build_parser().parse_args(namespace=CliArgs()))
 
-    if config.cli.loop:
-        run_loop(config)
-        return
+        if args.config.exists():
+            config = apply_overrides(load_config(args.config), args)
+        elif args.config == DEFAULT_CONFIG_PATH:
+            print(
+                f"Hint: no config file found at {args.config}; using built-in defaults. "
+                "Create one with --config or copy cisco-conf-helper.toml.",
+                file=sys.stderr,
+            )
+            config = apply_overrides(AppConfig(), args)
+        else:
+            raise SystemExit(f"Config file not found: {args.config}")
 
-    _ = run_once(config)
+        if config.cli.loop:
+            run_loop(config)
+            return
+
+        _ = run_once(config)
+    except KeyboardInterrupt:
+        print("\nInterrupted, exiting gracefully.", file=sys.stderr)
