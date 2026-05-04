@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import subprocess
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 from cisco_conf_helper.models import AppConfig, BackupResult, GitConfig, JjConfig, Result
@@ -43,7 +43,7 @@ def make_commit_context(config: AppConfig, result: BackupResult) -> CommitContex
         bytes_written=result.bytes_written,
         command=result.command,
         device_type=config.device.device_type,
-        timestamp=datetime.now(timezone.utc).isoformat(),
+        timestamp=datetime.now(UTC).isoformat(),
     )
 
 

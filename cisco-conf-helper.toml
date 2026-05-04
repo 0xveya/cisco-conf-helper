@@ -5,6 +5,15 @@ output_dir = "backups"
 command = "show running-config"
 min_expected_bytes = 1000
 retry_on_low_bytes = true
+print_saved_config = false
+wipe_after_backup = false
+wipe_delete_vlan_dat = false
+wipe_extra_commands = []
+
+[apply]
+source_dir = "backups"
+save_command = "write memory"
+save_after_apply = true
 
 [git]
 enabled = true
@@ -41,9 +50,11 @@ Timestamp: {timestamp}
 """
 
 [cli]
+mode = "backup"
 loop = true
 count = 0
 stop_on_error = true
+dry_run = false
 
 [device]
 device_type = "cisco_ios_serial"

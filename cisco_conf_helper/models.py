@@ -35,6 +35,17 @@ class BackupConfig:
     fallback_hostname: str = "unknown-device"
     min_expected_bytes: int = 1_000
     retry_on_low_bytes: bool = True
+    print_saved_config: bool = False
+    wipe_after_backup: bool = False
+    wipe_delete_vlan_dat: bool = False
+    wipe_extra_commands: list[str] = field(default_factory=list)
+
+
+@dataclass(frozen=True)
+class ApplyConfig:
+    source_dir: Path = Path("backups")
+    save_command: str = "write memory"
+    save_after_apply: bool = True
 
 
 @dataclass(frozen=True)
@@ -73,15 +84,18 @@ class JjConfig:
 
 @dataclass(frozen=True)
 class CliConfig:
+    mode: str = "backup"
     loop: bool = True
     count: int = 0
     stop_on_error: bool = True
+    dry_run: bool = False
 
 
 @dataclass(frozen=True)
 class AppConfig:
     device: DeviceConfig = field(default_factory=DeviceConfig)
     backup: BackupConfig = field(default_factory=BackupConfig)
+    apply: ApplyConfig = field(default_factory=ApplyConfig)
     git: GitConfig = field(default_factory=GitConfig)
     jj: JjConfig = field(default_factory=JjConfig)
     cli: CliConfig = field(default_factory=CliConfig)
@@ -99,3 +113,4 @@ class BackupResult:
     path: Path
     command: str
     bytes_written: int
+    config_text: str

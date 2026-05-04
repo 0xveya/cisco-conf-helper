@@ -13,7 +13,23 @@
         "command": { "type": "string" },
         "fallback_hostname": { "type": "string" },
         "min_expected_bytes": { "type": "integer", "minimum": 0 },
-        "retry_on_low_bytes": { "type": "boolean" }
+        "retry_on_low_bytes": { "type": "boolean" },
+        "print_saved_config": { "type": "boolean" },
+        "wipe_after_backup": { "type": "boolean" },
+        "wipe_delete_vlan_dat": { "type": "boolean" },
+        "wipe_extra_commands": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "apply": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "source_dir": { "type": "string" },
+        "save_command": { "type": "string" },
+        "save_after_apply": { "type": "boolean" }
       }
     },
     "device": {
@@ -51,9 +67,11 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
+        "mode": { "type": "string", "enum": ["backup", "apply"] },
         "loop": { "type": "boolean" },
         "count": { "type": "integer", "minimum": 0 },
-        "stop_on_error": { "type": "boolean" }
+        "stop_on_error": { "type": "boolean" },
+        "dry_run": { "type": "boolean" }
       }
     }
   },

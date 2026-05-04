@@ -29,6 +29,13 @@ class Connection(Protocol):
         **kwargs: object,
     ) -> str | list[object] | dict[str, object]: ...
 
+    def send_command_timing(
+        self,
+        command_string: str,
+        *args: object,
+        **kwargs: object,
+    ) -> str: ...
+
 
 def connect_device(config: DeviceConfig) -> Connection:
     params: dict[str, object] = {
@@ -116,6 +123,67 @@ def prompt_retry(byte_count: int, min_expected_bytes: int) -> bool:
     return answer.strip().lower() in {"y", "yes"}
 
 
+def send_timing_command(conn: Connection, command: str) -> str:
+    return conn.send_command_timing(command, strip_prompt=False, strip_command=False)
+
+
+def confirm_if_needed(conn: Connection, output: str) -> str:
+    lowered = output.lower()
+    if any(token in lowered for token in ["[confirm]", "confirm", "proceed", "delete filename"]):
+        return send_timing_command(conn, "\n")
+    return output
+
+
+def config_has_vlans(config_text: str) -> bool:
+    return bool(re.search(r"^\s*vlan\s+\d+", config_text, re.MULTILINE))
+
+
+def wipe_device(
+    conn: Connection,
+    backup_config: BackupConfig,
+    *,
+    delete_vlan_dat: bool = False,
+) -> Result[str]:
+    try:
+        outputs: list[str] = []
+
+        output = send_timing_command(conn, "write erase")
+        outputs.append(output)
+        output = confirm_if_needed(conn, output)
+        outputs.append(output)
+
+        if delete_vlan_dat:
+            output = send_timing_command(conn, "delete flash:vlan.dat")
+            outputs.append(output)
+            while True:
+                next_output = confirm_if_needed(conn, output)
+                outputs.append(next_output)
+                if next_output == output:
+                    break
+                output = next_output
+
+        for command in backup_config.wipe_extra_commands:
+            output = send_timing_command(conn, command)
+            outputs.append(output)
+            next_output = confirm_if_needed(conn, output)
+            outputs.append(next_output)
+
+        output = send_timing_command(conn, "reload")
+        outputs.append(output)
+        lowered = output.lower()
+        if "save?" in lowered or "modified" in lowered:
+            output = send_timing_command(conn, "no")
+            outputs.append(output)
+            lowered = output.lower()
+        if any(token in lowered for token in ["[confirm]", "confirm", "proceed"]):
+            output = send_timing_command(conn, "\n")
+            outputs.append(output)
+
+        return Result(ok=True, value="\n".join(part.strip() for part in outputs if part.strip()))
+    except Exception as exc:
+        return Result(ok=False, error=f"Wipe failed: {exc}")
+
+
 def backup_running_config(
     device_config: DeviceConfig,
     backup_config: BackupConfig,
@@ -159,6 +227,7 @@ def backup_running_config(
                     path=save_result.value,
                     command=command_result.value.command,
                     bytes_written=byte_count,
+                    config_text=output,
                 ),
             )
     except KeyboardInterrupt:
